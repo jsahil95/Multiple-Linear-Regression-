@@ -1,0 +1,231 @@
+---
+title: "Lab3"
+author: "Sahil Jain"
+date: "October 14, 2017"
+output: html_document
+---
+Computation Component using boston.csv data 
+
+```{r}
+bostonData <- read.csv("/Users/sahiljain/Downloads/boston.csv")
+```
+
+First we will assign these variables a identifier for eg. y = medv (response variable), x1,x2...xn as our explanatory variable. 
+
+```{r}
+y <- bostonData$medv
+x1 <- bostonData$crim
+x2 <- bostonData$zn
+x3 <- bostonData$indus
+x4 <- bostonData$chas
+x5 <- bostonData$nox
+x6 <- bostonData$rm
+x7 <- bostonData$age
+x8 <- bostonData$dis
+x9 <- bostonData$rad
+x10 <- bostonData$tax
+x11 <- bostonData$ptratio
+x12 <- bostonData$lstat
+```
+
+(A) Fit a multiple lineaer regression relating medv to all od explanatory variables listed above and calculate and interpret that value of R^2. 
+
+```{r}
+model1 <- lm(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + x8 + x9 + x10 + x11 + x12)
+summary(model1)
+```
+
+```{r}
+anova(model1)
+summary(model1)
+```
+
+Interpretation : R squared in calculated by dividing Residual sum of squares/ total sum of squares. In this model the SSR = 31366.7, value of SSE = 11349.5, value of SST = 42716.1. R^2 = SSR/SST = 31366.7/42716.2 = .7343, meaning that the fitted model explains 73.43% of the variability in the response variable. We can see the same values in annova output as well as in the MLR output. 
+
+(B) Fit a multiple linear regression model relating medv to all of the explanatory variables listed above - except indus - and calculate and interpret that value of R^2. 
+
+```{r}
+model2 <- lm(y ~ x1 + x2 + x4 + x5 + x6 + x7 + x8 + x9 + x10 + x11 + x12)
+summary(model2)
+```
+
+```{r}
+anova(model2)
+summary(model2)
+```
+Interpretation : R squared in calculated by dividing Residual sum of squares/ total sum of squares. In this model the SSR = 31365.8, value of SSE = 11350.5, value of SST = 42696.3 . R^2 = SSR/SST = 28815.5/40166 = .7343, meaning that the fitted model explains 73.43% of the variability in the response variable. We can see the same values in annova output as well as in the MLR output (Excluding indus variable)
+
+(C) Fit a linear regression model ralting medv to all of the explanatory variables listed above - except indus and age - and calculate and interpret that value of R^2. 
+
+```{r}
+model3 <- lm(y ~ x1 + x2 + x4 + x5 + x6 + x8 + x9 + x10 + x11 + x12)
+summ <- summary(model3)
+summ
+```
+```{r}
+anova(model3)
+summary(model3)
+```
+Interpretation : R squared in calculated by dividing Residual sum of squares/ total sum of squares. In this model the SSR = 31364, value of SSE = 11352.2, value of SST = 42716.2 . R^2 = SSR/SST = 31364/42716. = .7342, meaning that the fitted model explains 73.42% of the variability in the response variable. We can see the same values in annova output as well as in the MLR output (Excluding indus and age variables)
+
+(D) By commenting on R^2 value and relevant p-values, comment on weather propertion of industrial land in a neighborhood and the neighbourhood's age significantly influence the median value of a house in that neighborhood. 
+
+In total there are three regression models, I with all the expalanatory variables, II without indus varibale and III without age and indus variables.
+
+The value of R^2 in the model is .7343 which is quite close to 1, meaning that model account for a large proportion of the response variability (larger values are better). Where as P-value related with indus is 0.828520 meaning the variable is not satistically significant and P-value related with age is 0.786595 meaning both the variables are not satistically significant at alpha value = 0.05. Hence, these variables will not affect the median value of a house in a greater way. The Beta estimate associated with indus is : 0.013468, which means that for every proportion of industrial land in neighborhood it will change the price of property by 0.013 units, where as the Beta estimate associated with age in : 0.003611, which means that is the age of the house is prior to 1940 it will change the median value by 0.0036 units. 
+
+(E) Use additional sum of squares principle to formally test H_0 : beta_3 = beta_7 = 0 vs H_a : beta_j != 0. where j = 3,7, and draw a conclusion, at a 5% level of significance, regarding whether indus and age significantly influence medv. 
+
+Reduced model (beta_3 = beta_7 = 0) :
+```{r}
+model_reduced <- lm(y ~ x3 + x7)
+summary(model_reduced)
+SSE_reduced <-  anova(model_reduced)$`Sum Sq`[3]
+SSE_reduced
+```
+```{r}
+anova(model_reduced)
+SSE_reduced <- anova(model_reduced)$`Sum Sq`[3]
+SSE_reduced
+SSE_full <- anova(model1)$`Sum Sq`[13]
+SSE_full
+```
+
+```{r}
+l <- 2
+n <- dim(bostonData)[1]
+p <- 12
+F0 <- ((SSE_reduced - SSE_full)/l)/(SSE_full / (n-p-1))
+pval <- pf(q = F0, df1 = l, df2 = n-p-1, lower.tail = F)
+pval
+F0
+```
+```{r}
+anova(model1,model_reduced)
+```
+
+Since F-statistic is significantly large we obtained a very small P-value and thus conclude that the variables indus and age together are statistically significant, thus we will reject the null hypothesis and will not drop indus and age from our model. 
+
+(F) In the context of the reduced model (i.e., without indus and age), interpret each of the regression coefficients. 
+
+The reduced model has 11 variables named as x1,x2...x12 excluding x3 = indus, x7 = age. The coefficient associated with the model are as follows:
+
+Beta_1 : crim = -0.121665 which means that for every unit increase in per capita crime in the neighborhood, the median value of the house will decrease by -0.121665 or by $121.665
+
+Beta_2 : zn = 0.046191, zn is the variable for proportion of residential land zoned for lots over 25,000 sq. ft, meaning for every increase in the land area over 25,000 sq ft the median value of the house will increase by 0.046191 or by $46.191
+
+Beta_4 : chas = 2.871873, chas is a dummy variable (1,0) indicating whether the neighborhood is adjacent to the charles river or not, meaning if the house is closer the charles river than the value of the house will increase by 2.871873 or by $2871.873
+
+Beta_5 : nox = -18.262427, nox is the variable for nitrogen oxide pollution concentration, meaning that for every increase in parts per million in the concentration of nox, the median value of the house will decrease by -18.262427 or by $18262.47. 
+
+Beta_6 : rm = 3.672957, rm is the variable for average number of rooms per house, meaning for every average unit increase in the number of rooms in the house the median value of the house will increase by 3.672957 or by $3672.957
+
+Beta_8: dis = -1.515951, dis is the weighted mean of distance to five boston employment centers, meaning farther the mean distance is from the employment center the median value will decrease by -1.515951 or by $1515.951
+
+Beta_9 : rad = 0.283932, rad is the index of the accessibility to radial highways, meaning that is the index of the radial highway is higher the median value of the house will increase by 0.283932 or by $2839.32
+
+Beta_10 : tax = -0.012292, tax is the property tax rate per 10000, meaning that higher  tax rate will decrease the value of the house by -0.012292 or by $12.292.
+
+Beta_11 : ptratio = -0.930961, ptratio is the pupil-teacher ratio, meaning for every unit decrease in the pupil teacher ratio the value of the house will be affected by -0.930961 or by $930.961
+
+Beta_12: lstat = -0.546509, is the percent of population that have a "low" socio-economic status, meaning for every percent increase in the population with "low" socio-economica status the value of the house will decrease by -0.546509 or by $546.509 
+
+(G) In the context of the reduced model (i.e., without indus and age), provide a point prediction (and a 95% prediction interval) for the median house value in a neigborhood for which
+crim = 5
+zn = 10
+chas = 1
+nox = 0.6
+rm = 3
+dis = 4
+rad = 10
+tax = 500
+ptratio = 15
+lstat = 10
+
+As per the model the point prediction for the median house value will be :
+
+Yi = Beta_0 + Beta_1(x1) + beta_2(x2) +  beta_4(x4) + beta_5(x5) + beta_6(x6) + beta_8(x8) + beta_9(x9) + beta_10(x10) + beta_11(x11) + beta_12(x12)
+where values of x1, x2...x12 are given above.
+
+First we have to calculate the parameters manually.
+
+```{r}
+X <- cbind(rep(1, 506), x1,x2,x4,x5,x6,x8,x9,x10,x11,x12) 
+Y <- matrix(y, ncol = 11) 
+beta_hat <- solve(t(X) %*% X) %*% t(X) %*% y
+beta_hat
+```
+
+```{r}
+newData <- data.frame(x1 = 5, x2 = 10, x4 = 1, x5 = 0.6, x6 = 3, x8 = 4, x9 = 10, x10 = 500, x11 = 15, x12 = 10)
+```
+
+Point prediction 
+```{r}
+Yi <- predict(model3, newData)
+Yi
+```
+
+Point prediction manually : 
+```{r}
+Yi = 41.451747 - 0.121665*5 + 0.046191*10 + 2.871873*1 - 18.262427*0.6 + 3.672957*3 - 1.515951*4 + 0.283932*10 - 0.012292*500 - 0.930961*15 - 0.546509*10
+Yi
+```
+
+95% Prediction Interval 
+```{r}
+predict(model3, newData, interval = "predict", level = .95)
+```
+
+(H) In the context of the reduced model (i.e., without indus and age), construct the following four plots
+(i) Stundentized Residuals vs Index
+(ii) Studentized Residuals vs Fitted Values
+(iii) Histogram of Studentized residuals 
+(iv) QQ-Plot of studentized residuals. 
+Using these plots decide whether the residuals appear to be independent, normally distributed and have constant variance. 
+
+First we will Solve for stundentized residuals. 
+```{r}
+Sigma_hat <- summ$sigma
+X <- cbind(rep(1,506), x1,x2,x4,x5,x6,x8,x9,x10,x11,x12)
+H <- X %*% solve(t(X) %*% X) %*% t(X)
+h <- diag(H)
+st_resid <- model3$residuals/(Sigma_hat*sqrt(1-h))
+```
+
+Plots: 
+(i) Stundetized Residuals vs Index
+```{r}
+n <- length(model3$residuals)
+index <- 1:n
+plot(x = index, y = st_resid, col = "black", pch = 16, xlab = "Index", ylab = "Stundentized Residuals", main = "Studentized Residuals vs Index")
+abline(h = 0, col = "red", lwd = 2)
+```
+
+(ii) Studentized Residuals vs Fitted Values. 
+```{r}
+plot(x = model3$fitted.values, y = st_resid, col = "black", pch = 16, xlab = "Fitted Values", ylab = "Studentized Residuals", main = "Stundetized Residuals vs Fitted Values")
+abline(h = 0, col = "red", lwd = 2)
+```
+
+(iii) Histogram of Studentized Residual
+```{r}
+hist(st_resid, xlab = "Studentized Residuals", main = "Histogram of Studentized Residuals")
+```
+
+(iv) QQ-Plot of Studentized residuals
+```{r}
+qqnorm(st_resid, pch = 16, main = "QQ-Plot of Studentized residuals")
+qqline(st_resid, col = "red", lwd = 2)
+```
+From the plots above we can say that residuals appear to be normally distributed in case of index, however in case of fitted values residuals are somewhat dependent thus do not have a constant variance. To generalize even more we can see from the histogram that residuals are slightly right-skewed and from QQ-Plot we can verify that residuals are heavy tailed (right skewed). 
+
+(I) Suppose that any one of the residuals assumptions is not satisfied. Indicate, from the list below, which inferences would no longer be valid. 
+Parameter estimates 
+Hypothesis tests 
+Confidence interval
+Prediction Interval for Y_0
+
+The prediction interval for Y_0, Hypithesis testing and Confindence interval will no longer be valid becuase the non-random pattern in the residuals indicates that the prediction variables of the model are not capturing some explanatory information that is leaking into the residuals. The graph could represent several ways in which the model is not explaining all that is possible.
+
+
